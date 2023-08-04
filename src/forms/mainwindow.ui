@@ -1,0 +1,814 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1280</width>
+    <height>720</height>
+   </rect>
+  </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
+  </property>
+  <property name="windowTitle">
+   <string>AiDB-Demo</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="minimumSize">
+    <size>
+     <width>900</width>
+     <height>0</height>
+    </size>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="1">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="toolTipDuration">
+       <number>2000</number>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Image</string>
+       </attribute>
+       <widget class="QWidget" name="widget" native="true">
+        <property name="geometry">
+         <rect>
+          <x>70</x>
+          <y>10</y>
+          <width>763</width>
+          <height>571</height>
+         </rect>
+        </property>
+        <widget class="QLabel" name="label_show">
+         <property name="geometry">
+          <rect>
+           <x>40</x>
+           <y>20</y>
+           <width>640</width>
+           <height>480</height>
+          </rect>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::WinPanel</enum>
+         </property>
+         <property name="lineWidth">
+          <number>1</number>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="btnSaveImg">
+         <property name="geometry">
+          <rect>
+           <x>210</x>
+           <y>510</y>
+           <width>120</width>
+           <height>30</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Save</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="btnOpenImg">
+         <property name="geometry">
+          <rect>
+           <x>390</x>
+           <y>510</y>
+           <width>120</width>
+           <height>30</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Open</string>
+         </property>
+        </widget>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Video</string>
+       </attribute>
+       <widget class="QWidget" name="label_widget" native="true">
+        <property name="geometry">
+         <rect>
+          <x>70</x>
+          <y>10</y>
+          <width>763</width>
+          <height>571</height>
+         </rect>
+        </property>
+        <widget class="QLabel" name="label_video">
+         <property name="geometry">
+          <rect>
+           <x>40</x>
+           <y>20</y>
+           <width>640</width>
+           <height>480</height>
+          </rect>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::WinPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+        <widget class="QProgressBar" name="progressBar">
+         <property name="geometry">
+          <rect>
+           <x>40</x>
+           <y>500</y>
+           <width>640</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget">
+   <property name="minimumSize">
+    <size>
+     <width>180</width>
+     <height>46</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="windowTitle">
+    <string> ModelZoo</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <property name="maximumSize">
+     <size>
+      <width>200</width>
+      <height>16777215</height>
+     </size>
+    </property>
+    <widget class="QPushButton" name="btnScrfd">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>128</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string comment="Backend:Onnx" extracomment="Backend:Onnx"/>
+     </property>
+     <property name="toolTipDuration">
+      <number>2000</number>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string>Scrfd</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnBisenet">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>180</y>
+       <width>128</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string extracomment="Backend:Onnx"/>
+     </property>
+     <property name="toolTipDuration">
+      <number>2000</number>
+     </property>
+     <property name="text">
+      <string>BiSeNet</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnTddfa">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>220</y>
+       <width>128</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string extracomment="Backend:Onnx"/>
+     </property>
+     <property name="toolTipDuration">
+      <number>2000</number>
+     </property>
+     <property name="text">
+      <string>TddfaV2</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>360</y>
+       <width>72</width>
+       <height>15</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>310</y>
+       <width>72</width>
+       <height>15</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnYolox">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>260</y>
+       <width>128</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string extracomment="Backend:Onnx"/>
+     </property>
+     <property name="toolTipDuration">
+      <number>2000</number>
+     </property>
+     <property name="text">
+      <string>YoloX</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnYolov7">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>300</y>
+       <width>128</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string extracomment="Backend:Onnx"/>
+     </property>
+     <property name="toolTipDuration">
+      <number>2000</number>
+     </property>
+     <property name="text">
+      <string>YoloV7</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnPfpld">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>140</y>
+       <width>128</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string extracomment="Backend:Onnx"/>
+     </property>
+     <property name="toolTipDuration">
+      <number>2000</number>
+     </property>
+     <property name="text">
+      <string>PFPLD</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="cbYolov7">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>300</y>
+       <width>28</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="cbYolox">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>260</y>
+       <width>28</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="cbScrfd">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>100</y>
+       <width>28</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="cbPfpld">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>140</y>
+       <width>28</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="cbBisenet">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>180</y>
+       <width>28</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="cbTddfa">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>220</y>
+       <width>28</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="cbYolov8">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>340</y>
+       <width>28</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnYolov8">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>340</y>
+       <width>128</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string extracomment="Backend:Onnx"/>
+     </property>
+     <property name="toolTipDuration">
+      <number>2000</number>
+     </property>
+     <property name="text">
+      <string>YoloV8</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="cbOcr">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>380</y>
+       <width>28</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnOcr">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>380</y>
+       <width>128</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string extracomment="Backend:Onnx"/>
+     </property>
+     <property name="toolTipDuration">
+      <number>2000</number>
+     </property>
+     <property name="text">
+      <string>PPOcr</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="cbMovenet">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>420</y>
+       <width>28</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnMovenet">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>420</y>
+       <width>128</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string extracomment="Backend:Onnx"/>
+     </property>
+     <property name="toolTipDuration">
+      <number>2000</number>
+     </property>
+     <property name="text">
+      <string>MoveNet</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="cbMobileVit">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>470</y>
+       <width>28</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnMobileVit">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>470</y>
+       <width>128</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string extracomment="Backend:Onnx"/>
+     </property>
+     <property name="toolTipDuration">
+      <number>2000</number>
+     </property>
+     <property name="text">
+      <string>MobileVit</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_logo">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>160</width>
+       <height>80</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="modelconfigWidget">
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>46</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>200</width>
+     <height>524287</height>
+    </size>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::AllDockWidgetAreas</set>
+   </property>
+   <property name="windowTitle">
+    <string>Config</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_5">
+    <widget class="QLabel" name="label_model_name">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>210</y>
+       <width>161</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>60</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Backend:</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comBoxBackend">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>130</y>
+       <width>152</width>
+       <height>36</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_11">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>72</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Draw Color:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineeditColor">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>60</y>
+       <width>100</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="autoFillBackground">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string>0,0,255</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnColor">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>60</y>
+       <width>32</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>60</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Global&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::AutoText</enum>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>190</y>
+       <width>60</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Custom&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="Line" name="line">
+     <property name="geometry">
+      <rect>
+       <x>-3</x>
+       <y>170</y>
+       <width>191</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="QWidget" name="gridLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>230</y>
+       <width>180</width>
+       <height>80</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QRadioButton" name="radioButtonOnnx">
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="text">
+         <string>onnx</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QRadioButton" name="radioButtonMnn">
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="text">
+         <string>mnn</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QRadioButton" name="radioButtonTnn">
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="text">
+         <string>tnn</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QRadioButton" name="radioButtonNcnn">
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="text">
+         <string>ncnn</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QRadioButton" name="radioButtonOpenvino">
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="text">
+         <string>openvino</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QRadioButton" name="radioButtonPaddleLite">
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="text">
+         <string>paddle lite</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="debugLogWidget">
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>46</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>200</width>
+     <height>524287</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="windowTitle">
+    <string>Log</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_6">
+    <widget class="QTextEdit" name="teLog">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>201</width>
+       <height>331</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>
