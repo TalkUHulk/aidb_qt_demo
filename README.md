@@ -43,7 +43,7 @@ cmake .. && make -j2
 
 **folder structure**
 ```
-aidb_lua_demo/
+aidb_qt_demo/
 ├── main.cpp
 ├── themes
 ├── resource
