@@ -18,6 +18,9 @@
 #include <QMovie>
 #include <QLabel>
 
+#define TW 1282.0
+#define TH 720.0
+
 using namespace AIDB;
 
 QT_BEGIN_NAMESPACE
@@ -106,6 +109,8 @@ private:
     AiDBQueue<cv::Mat> _frame_queue;
 public:
     friend class AiDBWorker;
+
+    bool eventFilter(QObject *watched, QEvent *event) override;
 };
 
 

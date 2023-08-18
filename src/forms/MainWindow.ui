@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
+    <width>1282</width>
     <height>720</height>
    </rect>
   </property>
@@ -39,7 +39,7 @@
        <string notr="true"/>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -62,6 +62,18 @@
            <width>640</width>
            <height>480</height>
           </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>160</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>640</width>
+           <height>480</height>
+          </size>
          </property>
          <property name="frameShape">
           <enum>QFrame::WinPanel</enum>

@@ -20,6 +20,8 @@
 #include <QImageWriter>
 #include <QTextStream>
 #include <QDebug>
+#include <QDesktopWidget>
+
 
 const char* coco_labels[] = {
         "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
@@ -38,12 +40,17 @@ int line_map[20][2] = {{2,  1}, {2, 4}, {1, 3}, {4, 0}, {0, 3},
                        {6,  12}, {5, 11}, {12, 11}, {12, 14}, {11, 13},
                        {14, 16}, {13, 15}, {2, 0}, {1, 0}};
 
+
 MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent), ui(new Ui::MainWindow) {
 
     ui->setupUi(this);
 
     _demo_type = ui->tabWidget->currentIndex();
+    ui->label_video->installEventFilter(this);
+    ui->label_show->installEventFilter(this);
+    ui->label_show->setScaledContents(true);
+    ui->label_video->setScaledContents(true);
 
     //open qss file
     QFile file("./themes/macos.qss");
@@ -57,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
     qInstallMessageHandler(myMessageOutput);
 
     _logo = new QMovie("./resource/AiDBLogo.gif");
-
+    _logo->resized(QSize(59, 33));
     ui->label_logo->setMovie(_logo);
     _logo->start();
 
@@ -610,6 +617,7 @@ void MainWindow::renderImage() {
     _image_pixmap = QPixmap::fromImage(qimage);
     ui->label_show->setPixmap(_image_pixmap);
 
+
 }
 
 void MainWindow::update(const std::shared_ptr<AiDBBin>& bin) {
@@ -967,8 +975,6 @@ void MainWindow::update_config_widget(const QString& model_name) {
             ui->radioButtonPaddleLite->setEnabled(true);
         }
 
-
-
     }
 
     //"ONNX", "MNN", "NCNN", "TNN", "PaddleLite", "OpenVINO"
@@ -1044,6 +1050,51 @@ void MainWindow::update_backend() {
     ui->btnMobileVit->setToolTip(_backendList[_backend[11]]);
     ui->btnMovenet->setToolTip(_backendList[_backend[4]]);
     ui->btnOcr->setToolTip(_backendList[_backend[8]]);
+
+}
+
+bool MainWindow::eventFilter(QObject *watched, QEvent *event) {
+    static bool full_screen = false;
+    if (watched == ui->label_video){
+        static auto org_video_flags = ui->label_video->windowFlags();
+        if (event->type() == QEvent::MouseButtonDblClick){
+            static auto org_video_size = ui->label_video->size();
+            if (full_screen) {
+                full_screen = false;
+                ui->label_video->setWindowFlags(org_video_flags);
+                ui->label_video->showNormal(); //exit
+                ui->label_video->setFixedSize(org_video_size);
+                ui->label_video->setMaximumSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
+                ui->label_video->setMinimumSize(0, 0);
+            } else {
+                full_screen = true;
+                ui->label_video->setWindowFlags(Qt::Dialog);
+                ui->label_video->showFullScreen();
+
+            }
+        }
+    } else if (watched == ui->label_show){
+        static auto org_image_flags = ui->label_show->windowFlags();
+        if(event->type() == QEvent::MouseButtonDblClick){
+            static auto org_image_size = ui->label_show->size();
+            if (full_screen) {
+                full_screen = false;
+                ui->label_show->setWindowFlags(org_image_flags);
+                ui->label_show->showNormal(); //exit
+                ui->label_show->setFixedSize(org_image_size);
+                ui->label_show->setMinimumSize(0,0);
+                ui->label_show->setMaximumSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
+            } else {
+                full_screen = true;
+                ui->label_show->setWindowFlags(Qt::Dialog);
+                ui->label_show->showFullScreen();
+
+            }
+        }
+    }
+
+    return QObject::eventFilter(watched, event);
+
 
 }
 
