@@ -2,6 +2,11 @@
 
 AiDB Qt demo.
 
+<p align="center">
+ <img src="./doc/Qt_face.gif" width="480px"/>
+ <img src="./doc/Qt_ocr.gif"  width="480px"/>
+<p align="center">
+
 ### Quick Start
 
 
