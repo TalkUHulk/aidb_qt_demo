@@ -1,6 +1,6 @@
 ## aidb-qt-demo
 
-AiDB Qt demo.
+[AiDB](https://github.com/TalkUHulk/ai.deploy.box.git)  Qt demo.
 
 <p align="center">
  <img src="./doc/Qt_face.gif" height="185" width="320px"/>
