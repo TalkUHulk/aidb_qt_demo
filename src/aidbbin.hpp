@@ -25,8 +25,11 @@ public:
     std::vector<std::shared_ptr<ObjectMeta>> object_meta;
     std::vector<std::shared_ptr<OcrMeta>> ocr_meta;
     std::vector<std::shared_ptr<ClsMeta>> cls_meta;
+    std::vector<float> feat;
+    std::vector<float> mask;
 //    std::map<std::string, cv::Mat> generated;
     cv::Mat generated;
+    cv::Mat cache;
     float cost_time;
 };
 

@@ -15,7 +15,8 @@
 
 QStringList AiDBWorker::_modelList{"scrfd_500m_kps", "pfpld", "3ddfa_mb05_bfm_dense","bisenet","movenet",
                                     "yolox_nano","yolov7_tiny","yolov8n",
-                                    "ppocr_det", "ppocr_cls", "ppocr_ret", "mobilevit_xxs"};
+                                    "ppocr_det", "ppocr_cls", "ppocr_ret", "mobilevit_xxs", "mobile_sam_encoder",
+                                    "mobile_sam_point_prompt", "mobile_sam_box_prompt"};
 
 QStringList AiDBWorker::_backendList{"ONNX", "MNN", "NCNN", "TNN", "PaddleLite", "OpenVINO"};
 
@@ -33,13 +34,11 @@ void AiDBWorker::forward()
 {
 
     while(running){
-        cv::Mat frame;
+        MatPlus frame;
 
-//        std::cout << "running:" << _frame_queue.size() << ";" << _ptr_map_ins << "\n";
         if(_frame_queue.empty() || _ptr_map_ins->empty())
             continue;
 
-//        std::cout << "@@@@" << _frame_queue.size() << std::endl;
         if(_frame_queue.size() > 1){
             int cnt = _frame_queue.size() - 1;
             while(cnt--){
@@ -53,6 +52,7 @@ void AiDBWorker::forward()
         _ptr_map_ins->busy(true);
 
 //        for(int i = 0; i < _ptr_deque_ins->size(); i++){
+
         for(auto& model_name: _modelList){
 
             auto ins = (Interpreter*)(*_ptr_map_ins)[model_name.toStdString()];
@@ -62,7 +62,7 @@ void AiDBWorker::forward()
             if(ins->which_model().find("SCRFD") != std::string::npos){
                 std::vector<std::vector<float>> outputs;
                 std::vector<std::vector<int>> outputs_shape;
-                cv::Mat blob = *ins << frame;
+                cv::Mat blob = *ins << frame._mat;
                 ins->forward((float*)blob.data, ins->width(),ins->height(), ins->channel(), outputs, outputs_shape);
                 AIDB::Utility::scrfd_post_process(outputs, bin->face_meta, ins->width(), ins->height(), ins->scale_h());
 
@@ -73,8 +73,8 @@ void AiDBWorker::forward()
                         std::vector<std::vector<int>> outputs_shape;
 
                         std::shared_ptr<AIDB::FaceMeta> face_meta_roi = std::make_shared<AIDB::FaceMeta>();
-                        AIDB::Utility::Common::parse_roi_from_bbox(face_meta, face_meta_roi, frame.cols, frame.rows, 1.28, 0.14);
-                        cv::Mat roi(frame, cv::Rect(face_meta_roi->x1, face_meta_roi->y1, face_meta_roi->width(), face_meta_roi->height()));
+                        AIDB::Utility::Common::parse_roi_from_bbox(face_meta, face_meta_roi, frame._mat.cols, frame._mat.rows, 1.28, 0.14);
+                        cv::Mat roi(frame._mat, cv::Rect(face_meta_roi->x1, face_meta_roi->y1, face_meta_roi->width(), face_meta_roi->height()));
                         cv::Mat blob = *ins << roi;
                         ins->forward((float*)blob.data, ins->width(),ins->height(), ins->channel(), outputs, outputs_shape);
                         AIDB::Utility::pfpld_post_process(outputs, face_meta_roi, face_meta, 98);
@@ -88,7 +88,7 @@ void AiDBWorker::forward()
                 std::vector<std::vector<float>> outputs;
                 std::vector<std::vector<int>> outputs_shape;
 
-                cv::Mat blob = *ins << frame;
+                cv::Mat blob = *ins << frame._mat;
 
                 cv::Mat src_image;
                 *ins >> src_image;
@@ -100,7 +100,7 @@ void AiDBWorker::forward()
                 post_process(outputs[0], outputs_shape[0], bin->object_meta, src_image.cols, src_image.rows, ins->scale_h());
 
             } else if(ins->which_model().find("YOLOV7") != std::string::npos){
-                cv::Mat blob = *ins << frame;
+                cv::Mat blob = *ins << frame._mat;
 
                 cv::Mat src_image;
                 *ins >> src_image;
@@ -117,7 +117,7 @@ void AiDBWorker::forward()
                 }
 
             } else if(ins->which_model().find("YOLOV8") != std::string::npos){
-                cv::Mat blob = *ins << frame;
+                cv::Mat blob = *ins << frame._mat;
 
                 cv::Mat src_image;
                 *ins >> src_image;
@@ -130,7 +130,7 @@ void AiDBWorker::forward()
                 AIDB::Utility::yolov8_post_process(outputs[0], outputs_shape[0], bin->object_meta, 0.45, 0.35, ins->scale_h());
 
             } else if(ins->which_model().find("MOVENET") != std::string::npos){
-                cv::Mat blob = *ins << frame;
+                cv::Mat blob = *ins << frame._mat;
 
                 cv::Mat src_image;
                 *ins >> src_image;
@@ -145,7 +145,7 @@ void AiDBWorker::forward()
             } else if(ins->which_model().find("MOBILEVIT") != std::string::npos){
                 static auto post_process = AIDB::Utility::ImageNet("extra/imagenet-1k-id.txt");
 
-                cv::Mat blob = *ins << frame;
+                cv::Mat blob = *ins << frame._mat;
 
                 cv::Mat src_image;
                 *ins >> src_image;
@@ -160,11 +160,11 @@ void AiDBWorker::forward()
 
             } else if(ins->which_model().find("TDDFAV2") != std::string::npos){
                 if(!bin->face_meta.empty()){
-                    auto result = frame.clone();
+                    auto result = frame._mat.clone();
                     for(auto &face_meta: bin->face_meta){
                         std::shared_ptr<AIDB::FaceMeta> face_meta_roi = std::make_shared<AIDB::FaceMeta>();
-                        AIDB::Utility::Common::parse_roi_from_bbox(face_meta, face_meta_roi, frame.cols, frame.rows, 1.58, 0.14);
-                        cv::Mat roi(frame, cv::Rect(face_meta_roi->x1, face_meta_roi->y1, face_meta_roi->width(), face_meta_roi->height()));
+                        AIDB::Utility::Common::parse_roi_from_bbox(face_meta, face_meta_roi, frame._mat.cols, frame._mat.rows, 1.58, 0.14);
+                        cv::Mat roi(frame._mat, cv::Rect(face_meta_roi->x1, face_meta_roi->y1, face_meta_roi->width(), face_meta_roi->height()));
 
                         auto blob = *ins << roi;
 
@@ -206,7 +206,7 @@ void AiDBWorker::forward()
                         std::vector<std::vector<int>> outputs_shape;
 
                         cv::Mat align;
-                        AIDB::faceAlign(frame, align, face_meta, ins->width(), "ffhq");
+                        AIDB::faceAlign(frame._mat, align, face_meta, ins->width(), "ffhq");
 
                         auto blob = *ins << align;
 
@@ -245,14 +245,14 @@ void AiDBWorker::forward()
 
                 if(ins->which_model().find("DBNET") != std::string::npos){
 
-                    cv::Mat blob = *ins << frame;
+                    cv::Mat blob = *ins << frame._mat;
 
                     std::vector<std::vector<float>> outputs;
                     std::vector<std::vector<int>> outputs_shape;
 
                     ins->forward((float*)blob.data, ins->width(), ins->height(), ins->channel(), outputs, outputs_shape);
 
-                    post_process.dbnet_post_process(outputs[0], outputs_shape[0], bin->ocr_meta, ins->scale_h(), ins->scale_w(), frame);
+                    post_process.dbnet_post_process(outputs[0], outputs_shape[0], bin->ocr_meta, ins->scale_h(), ins->scale_w(), frame._mat);
 
                 } else if(ins->which_model().find("PPOCR_CLS") != std::string::npos) {
 
@@ -262,7 +262,7 @@ void AiDBWorker::forward()
                         for (auto &ocr_result :bin->ocr_meta) {
 
                             cv::Mat crop_img;
-                            AIDB::Utility::PPOCR::GetRotateCropImage(frame, crop_img, ocr_result);
+                            AIDB::Utility::PPOCR::GetRotateCropImage(frame._mat, crop_img, ocr_result);
 
                             std::vector<std::vector<float>> outputs;
                             std::vector<std::vector<int>> outputs_shape;
@@ -282,7 +282,7 @@ void AiDBWorker::forward()
                         for (auto &ocr_result :bin->ocr_meta) {
 
                             cv::Mat crop_img;
-                            AIDB::Utility::PPOCR::GetRotateCropImage(frame, crop_img, ocr_result);
+                            AIDB::Utility::PPOCR::GetRotateCropImage(frame._mat, crop_img, ocr_result);
 
                             std::vector<std::vector<float>> outputs;
                             std::vector<std::vector<int>> outputs_shape;
@@ -295,8 +295,148 @@ void AiDBWorker::forward()
                     }
                 }
 
+            } else if(ins->which_model().find("MobileSAM") != std::string::npos){
+                static float encoder_scale = 1.0f;
+                if(ins->which_model().find("Encoder") != std::string::npos) {
 
-            }
+                    cv::Mat blob = *ins << frame._mat;
+
+                    *ins >> bin->cache;
+
+                    std::vector<std::vector<float>> outputs;
+                    std::vector<std::vector<int>> outputs_shape;
+
+                    ins->forward((float*)blob.data, ins->width(), ins->height(), ins->channel(), outputs, outputs_shape);
+
+                    bin->feat.assign(outputs[0].begin(), outputs[0].end());
+
+                    encoder_scale = ins->scale_w();
+
+
+                } else if(ins->which_model().find("Point") != std::string::npos && frame._prompt_type == 0){
+
+                    if (bin->cache.empty() || bin->feat.empty() ||
+                            frame._points_ptr == nullptr  || frame._points_ptr->empty() ){
+                        qDebug() << "mobile sam need encoder!" << endl;
+
+                    } else {
+
+                        std::vector<void *> input;
+                        std::vector<float> coords; // 1xNx2
+
+                        std::vector<float> labels{1, 1, 1, 1, 1}; // 1xN
+                        std::vector<float> mask_input(256 * 256, 0);
+                        std::vector<int64_t> input_dim_has{1};
+                        // MNN freeze 5 points, dynamic inputs reshape error.
+
+                        input.emplace_back(bin->feat.data());
+
+                        // point prompt
+                        for(auto coord: *frame._points_ptr){
+
+                            coords.push_back(coord.x() * encoder_scale);
+                            coords.push_back(coord.y() * encoder_scale);
+                        }
+
+                        while(coords.size() < 10){
+                            coords.push_back(frame._points_ptr->front().x() * encoder_scale);
+                            coords.push_back(frame._points_ptr->front().y() * encoder_scale);
+                        }
+//                        std::vector<float> coords2{400, 400, 100, 500, 250, 250, 400, 400, 400, 400}; // 1xNx2
+//                        std::for_each(coords2.begin(), coords2.end(), [=](float& p){ p *= encoder_scale;});
+
+                        input.emplace_back(coords.data());
+                        input.emplace_back(labels.data());
+                        
+                        input.emplace_back(mask_input.data());
+                        input.emplace_back(input_dim_has.data());
+
+                        std::vector<std::vector<int>> input_shape;
+                        input_shape.push_back({1, 256, 64, 64});
+
+                        input_shape.push_back({1, 5, 2});
+                        input_shape.push_back({1, 5});
+                        
+                        input_shape.push_back({1, 1, 256, 256});
+                        input_shape.push_back({1});
+
+                        std::vector<std::vector<float>> outputs;
+                        std::vector<std::vector<int>> outputs_shape;
+                        ins->forward(input, input_shape, outputs, outputs_shape);
+                        cv::Mat result;
+                        AIDB::Utility::mobile_sam_post_process(outputs[0], bin->cache, result, encoder_scale, cv::Scalar(255, 144, 30), 0.6);
+
+                        for(int i = 0;i < coords.size() / 2; i++){
+                            cv::circle(result,
+                                       cv::Point(coords[2 * i] / encoder_scale, coords[2 * i + 1] / encoder_scale),
+                                       5, cv::Scalar(0, 0, 255), -1);
+                        }
+
+                        bin->generated = result;
+
+                    }
+                } else if(ins->which_model().find("Box") != std::string::npos && frame._prompt_type == 1){
+
+                    if (bin->cache.empty() || bin->feat.empty() ||
+                        frame._rects_ptr == nullptr || frame._rects_ptr->empty()) {
+                        qDebug() << "mobile sam need encoder!" << endl;
+
+                    } else {
+
+                        std::vector<void *> input;
+                        std::vector<float> boxes; // 1xNx4
+                        std::vector<float> mask_input(256 * 256, 0);
+                        std::vector<int64_t> input_dim_has{1};
+                        // MNN freeze 5 points, dynamic inputs reshape error.
+
+                        input.emplace_back(bin->feat.data());
+
+                        for(auto box: *frame._rects_ptr){
+                            boxes.push_back(box.left() * encoder_scale);
+                            boxes.push_back(box.top() * encoder_scale);
+                            boxes.push_back(box.right() * encoder_scale);
+                            boxes.push_back(box.bottom() * encoder_scale);
+                        }
+
+//                        while(boxes.size() < 20){
+//                            boxes.push_back(frame._rects_ptr->front().left() * encoder_scale);
+//                            boxes.push_back(frame._rects_ptr->front().top() * encoder_scale);
+//                            boxes.push_back(frame._rects_ptr->front().right() * encoder_scale);
+//                            boxes.push_back(frame._rects_ptr->front().bottom() * encoder_scale);
+//                        }
+
+                        input.emplace_back(boxes.data());
+
+
+                        input.emplace_back(mask_input.data());
+                        input.emplace_back(input_dim_has.data());
+
+                        std::vector<std::vector<int>> input_shape;
+                        input_shape.push_back({1, 256, 64, 64});
+
+                        input_shape.push_back({1, 5, 4});
+
+
+                        input_shape.push_back({1, 1, 256, 256});
+                        input_shape.push_back({1});
+
+                        std::vector<std::vector<float>> outputs;
+                        std::vector<std::vector<int>> outputs_shape;
+                        ins->forward(input, input_shape, outputs, outputs_shape);
+                        cv::Mat result;
+                        AIDB::Utility::mobile_sam_post_process(outputs[0], bin->cache, result, encoder_scale, cv::Scalar(255, 144, 30), 0.6);
+
+                        for (int i = 0; i < boxes.size() / 4; i++) {
+                            cv::rectangle(result, cv::Point(boxes[4 * i] / encoder_scale, boxes[4 * i + 1] / encoder_scale),
+                                          cv::Point(boxes[4 * i + 2] / encoder_scale, boxes[4 * i + 3] / encoder_scale),
+                                          cv::Scalar(0, 0, 255), 3);
+                        }
+
+                        bin->generated = result;
+
+                    }
+                }
+            } // mobilesam
 
         }
         _ptr_map_ins->busy(false);

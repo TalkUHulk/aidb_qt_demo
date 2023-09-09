@@ -8,8 +8,28 @@
 #include <opencv2/opencv.hpp>
 #include <QImage>
 #include <QColor>
+#include <QRectF>
+#include <QPointF>
+#include <deque>
 
 
+typedef struct MatPlus{
+    MatPlus()= default;
+    explicit MatPlus(cv::Mat &mat): _mat(mat){}
+    explicit MatPlus(cv::Mat &mat, std::deque<QPointF> *points): _mat(mat){
+        _points_ptr = points;
+        _prompt_type = 0;
+    }
+    explicit MatPlus(cv::Mat &mat, std::deque<QRectF> *rects): _mat(mat){
+        _rects_ptr = rects;
+        _prompt_type = 1;
+    }
+    cv::Mat _mat;
+    std::deque<QPointF> *_points_ptr = nullptr;
+    std::deque<QRectF>* _rects_ptr = nullptr;
+    int _prompt_type; // 0: point, 1: box
+
+} MatPlus;
 
 typedef struct ImageRenderParam{
     float _scale;

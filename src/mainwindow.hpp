@@ -17,11 +17,15 @@
 #include "utils.hpp"
 #include <QMovie>
 #include <QLabel>
+#include <QRectf>
+#include <QPointf>
 
 #define TW 1282.0
 #define TH 720.0
 
 using namespace AIDB;
+
+#define MOBILE_SAM_LIMIT 5
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -68,6 +72,10 @@ private:
     QLabel *_about;
     QLabel *_page;
 
+
+    std::deque<QPointF> _mb_sam_points;
+    std::deque<QRectF> _mb_sam_rects;
+    bool _interactive = false;
     Ui::MainWindow *ui;
 
 private:
@@ -76,11 +84,18 @@ private:
 
     void push_image();
 
+    void push_image(const QPointF& );
+
+    void push_image(const QRectF& );
+
     void video_release();
 
     void update_config_widget(const QString& );
 
     void update_backend();
+
+
+
     static QString log_message;
     static void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
@@ -107,6 +122,7 @@ private:
     std::shared_ptr<AiDBBin> _bin;
     QString _file_name;
     AiDBQueue<cv::Mat> _frame_queue;
+
 public:
     friend class AiDBWorker;
 

@@ -15,6 +15,7 @@
 #include "aidbbin.hpp"
 #include "aidbqueue.hpp"
 #include "aidbmap.hpp"
+#include "utils.hpp"
 
 class AiDBWorker: public QObject {
 Q_OBJECT
@@ -32,7 +33,8 @@ Q_SIGNALS:
     void finish(const std::shared_ptr<AiDBBin>);
 public:
 //    std::deque<cv::Mat> _input_queue;
-    AiDBQueue<cv::Mat> _frame_queue;
+//    AiDBQueue<cv::Mat> _frame_queue;
+    AiDBQueue<MatPlus> _frame_queue;
     AiDBMap *_ptr_map_ins{};
     bool running=false;
 

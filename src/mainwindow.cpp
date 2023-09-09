@@ -20,8 +20,10 @@
 #include <QImageWriter>
 #include <QTextStream>
 #include <QDebug>
+#include <QMouseEvent>
 #include <QDesktopWidget>
-
+#include "utils.hpp"
+#include <math.h>
 
 const char* coco_labels[] = {
         "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
@@ -110,6 +112,8 @@ MainWindow::MainWindow(QWidget *parent) :
             _render_timer->start(25);
             _bin.reset();
             _bin = nullptr;
+            ui->cbMobileSAM->hide();
+            ui->btnMobileSAM->hide();
             qDebug() << "Webcam mode" << endl;
         } else {
             while(!_worker->_frame_queue.empty()){
@@ -118,6 +122,8 @@ MainWindow::MainWindow(QWidget *parent) :
             if(_cap.isOpened()){
                 video_release();
             }
+            ui->cbMobileSAM->show();
+            ui->btnMobileSAM->show();
             qDebug() << "Image Mode" << endl;
 
         }
@@ -387,6 +393,36 @@ MainWindow::MainWindow(QWidget *parent) :
 
     });
 
+    // mobile_sam
+    connect(ui->cbMobileSAM,  static_cast<void (QCheckBox::*)(bool)>(&QCheckBox::clicked), [=](int click){
+        if(click){
+            // 3 in 1, index 12
+            _map_ins->insert("mobile_sam_encoder", _backendList[_backend[12]].toStdString());
+            _map_ins->insert("mobile_sam_point_prompt", _backendList[_backend[12]].toStdString());
+            _map_ins->insert("mobile_sam_box_prompt", _backendList[_backend[12]].toStdString());
+            qDebug() << "register model: mobile_sam_encoder; backend:" << _backend[12] << endl;
+            qDebug() << "register model: mobile_sam_point_prompt; backend:" << _backend[12] << endl;
+            qDebug() << "register model: mobile_sam_box_prompt; backend:" << _backend[12] << endl;
+            _interactive = true;
+        } else{
+            _map_ins->pop("mobile_sam_encoder");
+            _map_ins->pop("mobile_sam_point_prompt");
+            _map_ins->pop("mobile_sam_box_prompt");
+            qDebug() << "unregister model: mobile_sam_encoder" << endl;
+            qDebug() << "unregister model: mobile_sam_point_prompt" << endl;
+            qDebug() << "unregister model: mobile_sam_box_prompt" << endl;
+            _interactive = false;
+
+        }
+//        push_image();
+    });
+
+    connect(ui->btnMobileSAM,  static_cast<void (QPushButton::*)(bool)>(&QPushButton::clicked), [=](bool click){
+        update_config_widget("mobile_sam_encoder");
+
+    });
+
+
     connect(ui->radioButtonOnnx, static_cast<void (QRadioButton::*)(bool)>(&QRadioButton::clicked), [=](bool click){
         _backend[_cur_model_index] = 0;
         ui->radioButtonMnn->setChecked(false);
@@ -569,7 +605,32 @@ void MainWindow::video_release(){
 
 void MainWindow::push_image(){
     if(!_mat.empty()){
-        _worker->_frame_queue.push(_mat);
+        auto tmp = MatPlus(_mat);
+        _worker->_frame_queue.push(tmp);
+    }
+}
+
+void MainWindow::push_image(const QPointF &points){
+    if(!_mat.empty()){
+        if(_mb_sam_points.size() >= MOBILE_SAM_LIMIT){
+            _mb_sam_points.pop_front();
+        }
+        _mb_sam_points.emplace_back(points);
+
+        auto tmp = MatPlus(_mat, &_mb_sam_points);
+        _worker->_frame_queue.push(tmp);
+    }
+}
+
+
+void MainWindow::push_image(const QRectF &rects){
+    if(!_mat.empty()){
+        if(_mb_sam_rects.size() >= 1){
+            _mb_sam_rects.pop_front();
+        }
+        _mb_sam_rects.emplace_back(rects);
+        auto tmp = MatPlus(_mat, &_mb_sam_rects);
+        _worker->_frame_queue.push(tmp);
     }
 }
 
@@ -627,6 +688,7 @@ void MainWindow::update(const std::shared_ptr<AiDBBin>& bin) {
         ui->progressBar->setValue(ui->progressBar->value()== 1000 ? 0: ui->progressBar->value() + 1);
 
     } else {
+
         if(ui->label_show->pixmap() && bin){
             QPixmap pixmap;
             if(!bin->generated.empty()){
@@ -747,6 +809,9 @@ void MainWindow::update(const std::shared_ptr<AiDBBin>& bin) {
             }
 
             ui->label_show->setPixmap(pixmap);
+
+            painter.restore();
+            painter.end();
         }
     }
 
@@ -757,7 +822,8 @@ void MainWindow::readFarme() {
     if(_cap.isOpened()){
         cv::Mat frame;
         _cap.read(frame) ;
-        _worker->_frame_queue.push(frame);
+        auto tmp = MatPlus(frame);
+        _worker->_frame_queue.push(tmp);
         _frame_queue.push(frame);
     }
 
@@ -919,6 +985,9 @@ void MainWindow::renderFrame() {
 //        }
 
         ui->label_video->setPixmap(pixmap);
+
+        painter.restore();
+        painter.end();
     } else{
         cv::resize(show, show, cv::Size(nw, nh));
         cv::copyMakeBorder(show, show,
@@ -934,35 +1003,29 @@ void MainWindow::renderFrame() {
     }
 
 
+
 }
 
+// custom backend is not support
 void MainWindow::update_config_widget(const QString& model_name) {
     ui->label_model_name->setText(model_name);
     _cur_model_index = AiDBWorker::_modelList.indexOf(model_name);
 
-
     switch (_cur_model_index) {
+        // ppocr
         case 8:{
             ui->radioButtonNcnn->setEnabled(false);
             ui->radioButtonTnn->setEnabled(false);
             ui->radioButtonPaddleLite->setEnabled(false);
             break;
         }
-        case 9:{
-            ui->radioButtonNcnn->setEnabled(false);
-            ui->radioButtonTnn->setEnabled(false);
-            break;
-        }
-        case 10:{
-            ui->radioButtonNcnn->setEnabled(false);
-            ui->radioButtonTnn->setEnabled(false);
-            break;
-        }
+        // mobile vit
         case 11:{
             ui->radioButtonNcnn->setEnabled(false);
             ui->radioButtonTnn->setEnabled(false);
             break;
         }
+        // mobile sam
         case 12:{
             ui->radioButtonNcnn->setEnabled(false);
             ui->radioButtonTnn->setEnabled(false);
@@ -1050,11 +1113,18 @@ void MainWindow::update_backend() {
     ui->btnMobileVit->setToolTip(_backendList[_backend[11]]);
     ui->btnMovenet->setToolTip(_backendList[_backend[4]]);
     ui->btnOcr->setToolTip(_backendList[_backend[8]]);
+    ui->btnMobileSAM->setToolTip(_backendList[_backend[12]]);
 
 }
 
 bool MainWindow::eventFilter(QObject *watched, QEvent *event) {
     static bool full_screen = false;
+    static bool isHover = false;
+    static QPointF press_point;
+    static QPointF release_point;
+    static QPointF press_point_trace;
+    static QPointF hover_point_trace;
+
     if (watched == ui->label_video){
         static auto org_video_flags = ui->label_video->windowFlags();
         if (event->type() == QEvent::MouseButtonDblClick){
@@ -1090,11 +1160,83 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event) {
                 ui->label_show->showFullScreen();
 
             }
+        } else if(_interactive && event->type() == QEvent::MouseButtonRelease && isHover){
+
+            isHover = false;
+            auto mouseEvent = dynamic_cast<QMouseEvent *>(event);
+            release_point = QPointF(float(mouseEvent->pos().x() - (_render_param._pad_x >> 1)) / float(_render_param._w) * float(_render_param._org_w),
+                             float(mouseEvent->pos().y() - (_render_param._pad_y >> 1)) / float(_render_param._h) * float(_render_param._org_h));
+
+            auto dis = pow((release_point.x() - press_point.x()), 2) + pow((release_point.y() - press_point.y()), 2);
+            if(dis < 5){
+                _mb_sam_rects.clear();
+                push_image((release_point + press_point) / 2.0);
+
+            } else{
+                _mb_sam_points.clear();
+                auto min_x = fmin(press_point.x(), release_point.x());
+                auto min_y = fmin(press_point.y(), release_point.y());
+
+                auto max_x = fmax(press_point.x(), release_point.x());
+                auto max_y = fmax(press_point.y(), release_point.y());
+
+                push_image(QRectF(min_x, min_y, max_x - min_x, max_y - min_y));
+            }
+
+
+
+        } else if(isHover && event->type() == QEvent::MouseMove && _interactive){
+
+            auto mouseEvent = dynamic_cast<QMouseEvent *>(event);
+
+            hover_point_trace = QPointF(mouseEvent->pos().x(), mouseEvent->pos().y());
+            auto pixmap = _image_pixmap.copy();
+            QPainter painter(&pixmap);
+            QPen paintpen(_color);
+            paintpen.setWidth(3);
+            painter.setPen(paintpen);
+
+            auto min_x = fmin(press_point_trace.x(), hover_point_trace.x());
+            auto min_y = fmin(press_point_trace.y(), hover_point_trace.y());
+
+            auto max_x = fmax(press_point_trace.x(), hover_point_trace.x());
+            auto max_y = fmax(press_point_trace.y(), hover_point_trace.y());
+
+            painter.drawRect(QRectF(min_x, min_y, max_x - min_x, max_y - min_y));
+
+            ui->label_show->setPixmap(pixmap);
+            painter.restore();
+            painter.end();
+
+        }else if(_interactive && event->type() == QEvent::MouseButtonPress){
+            isHover = true;
+            auto mouseEvent = dynamic_cast<QMouseEvent *>(event);
+            press_point_trace = QPointF(mouseEvent->pos().x(), mouseEvent->pos().y());
+            press_point = QPointF(float(mouseEvent->pos().x() - (_render_param._pad_x >> 1)) / float(_render_param._w) * float(_render_param._org_w),
+                          float(mouseEvent->pos().y() - (_render_param._pad_y >> 1)) / float(_render_param._h) * float(_render_param._org_h));
+
         }
+//        else if(event->type() == QEvent::Paint && isHover && _interactive && ui->label_show->pixmap()){
+//            std::cout << "draw_trace\n";
+//            auto pixmap = _image_pixmap.copy();
+//            QPainter painter(&pixmap);
+//            QPen paintpen(_color);
+//            paintpen.setWidth(3);
+//            painter.setPen(paintpen);
+//
+//            painter.drawRect(QRectF(press_point, hover_point_trace));
+//
+//            ui->label_show->setPixmap(pixmap);
+//            painter.restore();
+//            painter.end();
+//
+//        }
+
     }
 
     return QObject::eventFilter(watched, event);
 
 
 }
+
 

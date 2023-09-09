@@ -27,7 +27,10 @@ public:
                 {"ppocr_ret", nullptr},
                 {"movenet", nullptr},
                 {"animeganv2_face_paint_v2", nullptr},
-                {"mobilevit_xxs", nullptr}
+                {"mobilevit_xxs", nullptr},
+                {"mobile_sam_encoder", nullptr},
+                {"mobile_sam_point_prompt", nullptr},
+                {"mobile_sam_box_prompt", nullptr}
                 };
     };
 

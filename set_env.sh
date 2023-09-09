@@ -1,7 +1,7 @@
 #!/bin/bash
 #source set_env.sh
 
-CURRENT_DIR="ai.deploy.box/libs/mac/x86_64"
+CURRENT_DIR="/Users/hulk/Documents/DX_Work/CodeZoo/AIDeployBox/libs/mac/x86_64"
 lib_path="${CURRENT_DIR}"
 lib_tnn_path="${CURRENT_DIR}/tnn"
 lib_openvino_path="${CURRENT_DIR}/openvino"
