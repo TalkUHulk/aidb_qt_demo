@@ -5,6 +5,7 @@
 <p align="center">
  <img src="./doc/Qt_face.gif" height="185" width="320px"/>
  <img src="./doc/Qt_ocr.gif"  height="185" width="320px"/>
+ <img src="./doc/qt_mobilesam.gif"  height="185" width="320px"/>
 <p align="center">
 
 ### Quick Start
